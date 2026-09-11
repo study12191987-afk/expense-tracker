@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>我的记账本</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 25px 18px 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .summary {
+            background: #1976d2;
+            color: white;
+            padding: 22px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .balance-title {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .balance {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            font-size: 14px;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .add-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .month-button {
+            border: none;
+            background: #eef4ff;
+            color: #1976d2;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .month-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .month-total {
+            background: #fff7ed;
+            color: #c2410c;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+        }
+
+        .month-total-title {
+            font-size: 13px;
+        }
+
+        .month-total-value {
+            font-size: 25px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .chart-area {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0 20px;
+        }
+
+        .donut-chart {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            position: relative;
+            background: #e5e7eb;
+        }
+
+        .donut-chart::after {
+            content: "";
+            position: absolute;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .donut-center {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 110px;
+        }
+
+        .donut-center-title {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .donut-center-value {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .category-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .category-name {
+            font-weight: bold;
+        }
+
+        .category-amount {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .category-percent {
+            color: #888;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+
+        .transaction-left {
+            flex: 1;
+        }
+
+        .transaction-note {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .transaction-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .transaction-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .income {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .expense {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .delete-button {
+            border: none;
+            padding: 7px 9px;
+            background: #fff1f2;
+            color: #d32f2f;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 20px 0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <h1>💰 我的记账本</h1>
+        <p>记录收入、支出和消费分类</p>
+    </div>
+
+
+    <div class="summary">
+
+        <div class="balance-title">
+            当前余额
+        </div>
+
+        <div class="balance">
+            $<span id="balance">0.00</span>
+        </div>
+
+        <div class="summary-row">
+
+            <div class="summary-item">
+                收入
+                <div class="summary-value">
+                    $<span id="income">0.00</span>
+                </div>
+            </div>
+
+            <div class="summary-item">
+                支出
+                <div class="summary-value">
+                    $<span id="expense">0.00</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>添加一笔账</h2>
+
+        <label for="type">类型</label>
+
+        <select id="type">
+            <option value="income">收入</option>
+            <option value="expense">支出</option>
+        </select>
+
+
+        <label for="category">分类 Category</label>
+
+        <select id="category">
+            <option value="💰 工资">💰 工资</option>
+            <option value="🍜 餐饮">🍜 餐饮</option>
+            <option value="🏠 房租">🏠 房租</option>
+            <option value="🚗 交通">🚗 交通</option>
+            <option value="🛒 购物">🛒 购物</option>
+            <option value="💡 水电">💡 水电</option>
+            <option value="📦 其他">📦 其他</option>
+        </select>
+
+
+        <label for="amount">金额</label>
+
+        <input
+            type="number"
+            id="amount"
+            placeholder="例如：100"
+            step="0.01"
+        >
+
+
+        <label for="date">日期</label>
+
+        <input
+            type="date"
+            id="date"
+        >
+
+
+        <label for="note">备注</label>
+
+        <input
+            type="text"
+            id="note"
+            placeholder="例如：超市买菜"
+        >
+
+
+        <button
+            class="add-button"
+            onclick="addTransaction()"
+        >
+            ＋ 添加记录
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>📊 月度统计</h2>
+
+
+        <div class="month-nav">
+
+            <button
+                class="month-button"
+                onclick="changeMonth(-1)"
+            >
+                ‹
+            </button>
+
+
+            <div
+                class="month-title"
+                id="monthTitle"
+            >
+            </div>
+
+
+            <button
+                class="month-button"
+                onclick="changeMonth(1)"
+            >
+                ›
+            </button>
+
+        </div>
+
+
+        <div class="month-total">
+
+            <div class="month-total-title">
+                当月总支出
+            </div>
+
+            <div class="month-total-value">
+                $<span id="monthExpense">0.00</span>
+            </div>
+
+        </div>
+
+
+        <div class="chart-area">
+
+            <div
+                class="donut-chart"
+                id="donutChart"
+            >
+
+                <div class="donut-center">
+
+                    <div class="donut-center-title">
+                        当月支出
+                    </div>
+
+                    <div class="donut-center-value">
+                        $<span id="donutTotal">0.00</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="categoryStats">
+
+            <div class="empty">
+                当月还没有支出
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2 id="transactionTitle">账目记录</h2>
+
+        <div id="transactions">
+
+            <div class="empty">
+                暂时还没有记录
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    let transactions =
+        JSON.parse(
+            localStorage.getItem("transactions")
+        ) || [];
+
+
+    const chartColors = [
+        "#1976d2",
+        "#ef5350",
+        "#66bb6a",
+        "#ffa726",
+        "#ab47bc",
+        "#26a69a",
+        "#78909c"
+    ];
+
+
+    let selectedDate =
+        new Date();
+
+
+    function formatMoney(number) {
+
+        return number.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    }
+
+
+    function getDateParts(dateString) {
+
+        let parts =
+            dateString.split("-");
+
+        return {
+            year: Number(parts[0]),
+            month: Number(parts[1]) - 1,
+            day: Number(parts[2])
+        };
+
+    }
+
+
+    function getTransactionYearMonth(transaction) {
+
+        let year =
+            transaction.year;
+
+        let month =
+            transaction.month;
+
+
+        if (
+            year === undefined ||
+            month === undefined
+        ) {
+
+            if (transaction.date) {
+
+                let parsedDate;
+
+
+                if (
+                    transaction.date.includes("-")
+                ) {
+
+                    let parts =
+                        transaction.date.split("-");
+
+                    if (parts.length === 3) {
+
+                        parsedDate =
+                            new Date(
+                                Number(parts[0]),
+                                Number(parts[1]) - 1,
+                                Number(parts[2])
+                            );
+
+                    }
+
+                } else {
+
+                    parsedDate =
+                        new Date(transaction.date);
+
+                }
+
+
+                if (
+                    parsedDate &&
+                    !isNaN(parsedDate)
+                ) {
+
+                    year =
+                        parsedDate.getFullYear();
+
+                    month =
+                        parsedDate.getMonth();
+
+                }
+
+            }
+
+        }
+
+
+        return {
+            year: year,
+            month: month
+        };
+
+    }
+
+
+    function addTransaction() {
+
+        let type =
+            document.getElementById("type").value;
+
+        let category =
+            document.getElementById("category").value;
+
+        let amount =
+            Number(
+                document.getElementById("amount").value
+            );
+
+        let note =
+            document.getElementById("note").value.trim();
+
+        let dateValue =
+            document.getElementById("date").value;
+
+
+        if (amount <= 0) {
+
+            alert("请输入大于 0 的金额。");
+
+            return;
+
+        }
+
+
+        if (!dateValue) {
+
+            alert("请选择日期。");
+
+            return;
+
+        }
+
+
+        if (note === "") {
+
+            note =
+                "未填写备注";
+
+        }
+
+
+        let dateParts =
+            getDateParts(dateValue);
+
+
+        let transaction = {
+
+            type: type,
+
+            category: category,
+
+            amount: amount,
+
+            note: note,
+
+            date: dateValue,
+
+            year: dateParts.year,
+
+            month: dateParts.month
+
+        };
+
+
+        transactions.push(transaction);
+
+
+        saveTransactions();
+
+
+        selectedDate =
+            new Date(
+                dateParts.year,
+                dateParts.month,
+                1
+            );
+
+
+        document.getElementById("amount").value =
+            "";
+
+        document.getElementById("note").value =
+            "";
+
+
+        updateDisplay();
+
+    }
+
+
+    function saveTransactions() {
+
+        localStorage.setItem(
+            "transactions",
+            JSON.stringify(transactions)
+        );
+
+    }
+
+
+    function deleteTransaction(index) {
+
+        let confirmed =
+            confirm("确定要删除这笔记录吗？");
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        transactions.splice(
+            index,
+            1
+        );
+
+
+        saveTransactions();
+
+
+        updateDisplay();
+
+    }
+
+
+    function changeMonth(amount) {
+
+        selectedDate =
+            new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth() + amount,
+                1
+            );
+
+
+        updateDisplay();
+
+    }
+
+
+    function updateDisplay() {
+
+        updateOverallSummary();
+
+        updateMonthlyStats();
+
+        updateTransactionList();
+
+    }
+
+
+    function updateOverallSummary() {
+
+        let totalIncome = 0;
+
+        let totalExpense = 0;
+
+
+        transactions.forEach(
+            function(transaction) {
+
+                if (
+                    transaction.type === "income"
+                ) {
+
+                    totalIncome +=
+                        Number(transaction.amount);
+
+                } else {
+
+                    totalExpense +=
+                        Number(transaction.amount);
+
+                }
+
+            }
+        );
+
+
+        let balance =
+            totalIncome - totalExpense;
+
+
+        document.getElementById("income").textContent =
+            formatMoney(totalIncome);
+
+
+        document.getElementById("expense").textContent =
+            formatMoney(totalExpense);
+
+
+        document.getElementById("balance").textContent =
+            formatMoney(balance);
+
+    }
+
+
+    function updateMonthlyStats() {
+
+        let selectedYear =
+            selectedDate.getFullYear();
+
+
+        let selectedMonth =
+            selectedDate.getMonth();
+
+
+        document.getElementById("monthTitle").textContent =
+            `${selectedYear}年${selectedMonth + 1}月`;
+
+
+        let categoryTotals = {};
+
+        let monthExpense = 0;
+
+
+        transactions.forEach(
+            function(transaction) {
+
+                if (
+                    transaction.type !== "expense"
+                ) {
+
+                    return;
+
+                }
+
+
+                let dateInfo =
+                    getTransactionYearMonth(
+                        transaction
+                    );
+
+
+                if (
+                    dateInfo.year !== selectedYear ||
+                    dateInfo.month !== selectedMonth
+                ) {
+
+                    return;
+
+                }
+
+
+                let category =
+                    transaction.category ||
+                    "📦 其他";
+
+
+                let amount =
+                    Number(transaction.amount);
+
+
+                monthExpense +=
+                    amount;
+
+
+                if (
+                    !categoryTotals[category]
+                ) {
+
+                    categoryTotals[category] =
+                        0;
+
+                }
+
+
+                categoryTotals[category] +=
+                    amount;
+
+            }
+        );
+
+
+        document.getElementById("monthExpense").textContent =
+            formatMoney(monthExpense);
+
+
+        document.getElementById("donutTotal").textContent =
+            formatMoney(monthExpense);
+
+
+        let categories =
+            Object.entries(
+                categoryTotals
+            );
+
+
+        categories.sort(
+            function(a, b) {
+
+                return b[1] - a[1];
+
+            }
+        );
+
+
+        updateDonutChart(
+            categories,
+            monthExpense
+        );
+
+
+        let statsContainer =
+            document.getElementById(
+                "categoryStats"
+            );
+
+
+        statsContainer.innerHTML =
+            "";
+
+
+        if (
+            categories.length === 0
+        ) {
+
+            statsContainer.innerHTML =
+                '<div class="empty">当月还没有支出</div>';
+
+            return;
+
+        }
+
+
+        categories.forEach(
+            function(item, index) {
+
+                let category =
+                    item[0];
+
+
+                let amount =
+                    item[1];
+
+
+                let percent =
+                    monthExpense > 0
+                    ? (amount / monthExpense) * 100
+                    : 0;
+
+
+                let color =
+                    chartColors[
+                        index %
+                        chartColors.length
+                    ];
+
+
+                let div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "category-row";
+
+
+                div.innerHTML = `
+
+                    <div class="category-left">
+
+                        <span
+                            class="color-dot"
+                            style="background:${color}"
+                        ></span>
+
+                        <span class="category-name">
+                            ${category}
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="category-amount">
+                            $${formatMoney(amount)}
+                        </span>
+
+                        <span class="category-percent">
+                            ${percent.toFixed(0)}%
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                statsContainer.appendChild(
+                    div
+                );
+
+            }
+        );
+
+    }
+
+
+    function updateTransactionList() {
+
+        let selectedYear =
+            selectedDate.getFullYear();
+
+
+        let selectedMonth =
+            selectedDate.getMonth();
+
+
+        document.getElementById(
+            "transactionTitle"
+        ).textContent =
+            `📒 ${selectedYear}年${selectedMonth + 1}月账目`;
+
+
+        let container =
+            document.getElementById(
+                "transactions"
+            );
+
+
+        let filteredTransactions =
+            transactions
+                .map(
+                    function(transaction, index) {
+
+                        return {
+                            transaction: transaction,
+                            originalIndex: index
+                        };
+
+                    }
+                )
+                .filter(
+                    function(item) {
+
+                        let dateInfo =
+                            getTransactionYearMonth(
+                                item.transaction
+                            );
+
+
+                        return (
+                            dateInfo.year === selectedYear &&
+                            dateInfo.month === selectedMonth
+                        );
+
+                    }
+                );
+
+
+        if (
+            filteredTransactions.length === 0
+        ) {
+
+            container.innerHTML =
+                '<div class="empty">这个月还没有账目</div>';
+
+            return;
+
+        }
+
+
+        filteredTransactions.sort(
+            function(a, b) {
+
+                let dateA =
+                    parseTransactionDate(
+                        a.transaction.date
+                    );
+
+
+                let dateB =
+                    parseTransactionDate(
+                        b.transaction.date
+                    );
+
+
+                return dateB - dateA;
+
+            }
+        );
+
+
+        container.innerHTML =
+            "";
+
+
+        filteredTransactions.forEach(
+            function(item) {
+
+                let transaction =
+                    item.transaction;
+
+
+                let index =
+                    item.originalIndex;
+
+
+                let div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "transaction";
+
+
+                let sign =
+                    transaction.type === "income"
+                    ? "+"
+                    : "-";
+
+
+                let className =
+                    transaction.type === "income"
+                    ? "income"
+                    : "expense";
+
+
+                let typeText =
+                    transaction.type === "income"
+                    ? "收入"
+                    : "支出";
+
+
+                let category =
+                    transaction.category ||
+                    "📦 其他";
+
+
+                div.innerHTML = `
+
+                    <div class="transaction-left">
+
+                        <div class="transaction-note">
+                            ${transaction.note}
+                        </div>
+
+                        <div class="transaction-info">
+                            ${typeText}
+                            ·
+                            ${category}
+                            ·
+                            ${transaction.date || ""}
+                        </div>
+
+                    </div>
+
+
+                    <div class="transaction-right">
+
+                        <div class="${className}">
+                            ${sign}$${formatMoney(Number(transaction.amount))}
+                        </div>
+
+
+                        <button
+                            class="delete-button"
+                            onclick="deleteTransaction(${index})"
+                        >
+                            🗑
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    div
+                );
+
+            }
+        );
+
+    }
+
+
+    function parseTransactionDate(
+        dateString
+    ) {
+
+        if (!dateString) {
+
+            return new Date(0);
+
+        }
+
+
+        if (
+            dateString.includes("-")
+        ) {
+
+            let parts =
+                dateString.split("-");
+
+
+            if (
+                parts.length === 3
+            ) {
+
+                return new Date(
+                    Number(parts[0]),
+                    Number(parts[1]) - 1,
+                    Number(parts[2])
+                );
+
+            }
+
+        }
+
+
+        let parsed =
+            new Date(dateString);
+
+
+        if (
+            !isNaN(parsed)
+        ) {
+
+            return parsed;
+
+        }
+
+
+        return new Date(0);
+
+    }
+
+
+    function updateDonutChart(
+        categories,
+        total
+    ) {
+
+        let chart =
+            document.getElementById(
+                "donutChart"
+            );
+
+
+        if (
+            total <= 0
+        ) {
+
+            chart.style.background =
+                "#e5e7eb";
+
+            return;
+
+        }
+
+
+        let gradientParts =
+            [];
+
+
+        let currentPercent =
+            0;
+
+
+        categories.forEach(
+            function(item, index) {
+
+                let amount =
+                    item[1];
+
+
+                let percent =
+                    (amount / total) * 100;
+
+
+                let start =
+                    currentPercent;
+
+
+                let end =
+                    currentPercent + percent;
+
+
+                let color =
+                    chartColors[
+                        index %
+                        chartColors.length
+                    ];
+
+
+                gradientParts.push(
+                    `${color} ${start}% ${end}%`
+                );
+
+
+                currentPercent =
+                    end;
+
+            }
+        );
+
+
+        chart.style.background =
+            `conic-gradient(${gradientParts.join(",")})`;
+
+    }
+
+
+    function setTodayDate() {
+
+        let today =
+            new Date();
+
+
+        let year =
+            today.getFullYear();
+
+
+        let month =
+            String(
+                today.getMonth() + 1
+            ).padStart(2, "0");
+
+
+        let day =
+            String(
+                today.getDate()
+            ).padStart(2, "0");
+
+
+        document.getElementById(
+            "date"
+        ).value =
+            `${year}-${month}-${day}`;
+
+    }
+
+
+    setTodayDate();
+
+    updateDisplay();
+
+</script>
+
+</body>
+
+</html>
