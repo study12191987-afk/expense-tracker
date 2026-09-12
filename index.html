@@ -9,6 +9,11 @@
 
     <title>我的记账本</title>
 
+    <link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#1976d2">
+    
+
     <style>
 
         * {
@@ -1370,6 +1375,11 @@
 
     updateDisplay();
 
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./service-worker.js");
+    }
 </script>
 
 </body>
